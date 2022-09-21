@@ -3,7 +3,7 @@
 //  DoCanMua
 //
 //  Created by Quang Vu on 10/26/21.
-//
+// just practice on swiftui
 
 import SwiftUI
 
