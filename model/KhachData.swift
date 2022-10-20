@@ -21,8 +21,8 @@ class KhachData: ObservableObject {
         return documentFolder.appendingPathComponent("khach.data")
     }
     
-    @Published var khachData: [Khach] = []
-    //@Published var worker: Technician = quang
+    //@Published var khachData: [Khach] = []
+    @Published var worker: Technician = Technician(name: "Quang")
     
     
     
@@ -35,16 +35,16 @@ class KhachData: ObservableObject {
             guard let data = try? Data(contentsOf: Self.fileURL) else {
                 #if DEBUG
                 DispatchQueue.main.async {
-                    self?.khachData = khachmau
+                    self?.worker = quang
                 }
                 #endif
                 return
             }
-            guard let nguoiMoi = try? JSONDecoder().decode([Khach].self, from: data) else {
+            guard let nguoiMoi = try? JSONDecoder().decode(Technician.self, from: data) else {
                 fatalError("khong the decode")
             }
             DispatchQueue.main.async {
-                self?.khachData = nguoiMoi
+                self?.worker = nguoiMoi
             }
         }
     }
@@ -52,7 +52,7 @@ class KhachData: ObservableObject {
     func save() {
         DispatchQueue.global(qos: .background).async {
             [weak self] in
-            guard let ngaycong = self?.khachData else {fatalError("khong the luu")}
+            guard let ngaycong = self?.worker else {fatalError("khong the luu")}
             guard let data = try? JSONEncoder().encode(ngaycong) else {fatalError("khong the encode")}
             
             do {

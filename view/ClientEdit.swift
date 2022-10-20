@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct ClientEdit: View {
+    @Binding var worker: Technician
     @Binding var client: Khach.ThemKhach
     @State var newSer = Service.themDv()
     var cotGrid: [GridItem] = [GridItem(spacing:5, alignment: .center),
@@ -23,7 +24,7 @@ struct ClientEdit: View {
             }.padding()
             
             LazyVGrid (columns: cotGrid,alignment: .center, spacing: 5, content: {
-                ForEach(client.services){serv in
+                ForEach(worker.services){serv in
                     Button(action: {
                         client.dvDone.append(serv)
                     }, label: {
@@ -39,21 +40,18 @@ struct ClientEdit: View {
                 NewService(newSer: $newSer)
                 Button("Add Service", action: {
                     let new = Service(dichVu: newSer.dichVu, gia: newSer.gia)
-                    client.services.append(new)
+                    worker.services.append(new)
                 }).disabled(newSer.dichVu.isEmpty)
             }
         }//list
         .onAppear{
             client.dvDone.removeAll()
-            client.name.removeAll()
-            client.desc.removeAll()
-            client.sdt.removeAll()
         }
     }
 }
 
 struct ClientEdit_Previews: PreviewProvider {
     static var previews: some View {
-        ClientEdit(client: .constant(khachmau[0].mau))
+        ClientEdit(worker: .constant(quang),client: .constant(khachmau[0].mau))
     }
 }

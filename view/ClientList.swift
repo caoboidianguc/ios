@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct ClientList: View {
-    //@Binding var worker: Technician
-    @Binding var khachs: [Khach]
+    @Binding var worker: Technician
+    //@Binding var khachs: [Khach]
     @State var newCus = Khach.ThemKhach()
     @State private var trangMoi = false
     @Environment(\.scenePhase) private var scene
@@ -17,13 +17,13 @@ struct ClientList: View {
     
     var body: some View {
         List {
-            ForEach(khachs) { khach in
-                NavigationLink(destination: ClientDetail(khach: khach)){
+            ForEach($worker.khach) { $khach in
+                NavigationLink(destination: ClientDetail(worker: $worker, khach: $khach)){
                     KhachRow(khach: khach)
                 }
             }.onDelete{ khach in
                 withAnimation{
-                    khachs.remove(atOffsets: khach)
+                    worker.khach.remove(atOffsets: khach)
                 }
             }
         }//list
@@ -33,12 +33,12 @@ struct ClientList: View {
                                              label: {Image(systemName: "plus")}))
         .sheet(isPresented: $trangMoi) {
             NavigationView {
-                ClientEdit(client: $newCus)
+                ClientEdit(worker: $worker, client: $newCus)
                     .navigationBarItems(leading: Button("Cancel"){
                         trangMoi = false
                     }, trailing: Button("Add"){
                         let newClient = Khach(name: newCus.name, sdt: newCus.sdt, desc: newCus.desc ,dvDone: newCus.dvDone)
-                        khachs.append(newClient)
+                        worker.khach.insert(newClient, at: 0)
                         trangMoi = false
                     })
             }
@@ -54,7 +54,7 @@ struct ClientList: View {
 struct ClientList_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            ClientList(khachs: .constant(khachmau), luuThayDoi: {})
+            ClientList(worker: .constant(quang), luuThayDoi: {})
         }
     }
 }
