@@ -8,7 +8,10 @@
 import SwiftUI
 
 struct ClientDetail: View {
-    var khach: Khach
+    @Binding var worker: Technician
+    @Binding var khach: Khach
+    @State private var updateKhach: Khach.ThemKhach = Khach.ThemKhach()
+    @State private var suadoi = false
     
     var body: some View {
         List {
@@ -32,9 +35,25 @@ struct ClientDetail: View {
             Section(header: Text("Detail")){
                 Text("Last Done: \(khach.ngay.formatted(.dateTime))")
                 Text("Note: \(khach.desc)")
-                Text("Total:")
+                Text("Time visited: \(khach.diem)")
+                Text("Total: $\(khach.khachTra())")
             }
         }.navigationTitle(Text("\(khach.name) visited"))
+            .navigationBarItems(trailing: Button("Edit"){
+                suadoi = true
+                updateKhach = khach.mau
+            })
+            .fullScreenCover(isPresented: $suadoi) {
+                NavigationView {
+                    ClientEdit(worker: $worker, client: $updateKhach)
+                        .navigationBarItems(leading: Button("Huy"){
+                            suadoi = false
+                        }, trailing: Button("Update"){
+                            khach.update(tu: updateKhach)
+                            suadoi = false
+                        })
+                }
+            }
     }//body
     
 }
@@ -42,7 +61,7 @@ struct ClientDetail: View {
 struct ClientDetail_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            ClientDetail(khach: khachmau[0])
+            ClientDetail(worker: .constant(quang),khach: .constant(khachmau[0]))
         }
     }
 }

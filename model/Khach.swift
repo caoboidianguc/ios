@@ -13,7 +13,7 @@ struct Khach: Codable, Identifiable {
     var name: String
     var sdt: String
     var desc: String
-    var diem: Int = 0
+    var diem: Int = 1
     var dvDone: [Service] = []
     var services: [Service]
     var ngay: Date
@@ -49,10 +49,12 @@ extension Khach {
         var desc: String = ""
         var dvDone: [Service] = []
         var services: [Service] = dvmau
+        var diem: Int = 1
+        var ngay: Date = Date()
     }
-    
+    //mau: ThemKhach la de khi update custommer, load this
     var mau: ThemKhach {
-        return ThemKhach(name: name, sdt: sdt, desc: desc, dvDone: dvDone, services: services)
+        return ThemKhach(name: name, sdt: sdt, desc: desc, dvDone: dvDone, services: services, diem: diem, ngay: ngay)
         
     }
     
@@ -71,4 +73,14 @@ extension Khach {
                         Service(dichVu: "Ombre", gia: 70),
                         Service(dichVu: "french", gia: 5),
                         Service(dichVu: "Nail-Shape", gia: 10)]
+    
+    mutating func update(tu data: ThemKhach){
+        name = data.name
+        sdt = data.sdt
+        desc = data.desc
+        dvDone = data.dvDone
+        services = data.services
+        diem = data.diem + 1
+        ngay = Date()
+    }
 }
