@@ -8,7 +8,14 @@
 import Foundation
 
 
-struct Khach: Codable, Identifiable {
+struct Khach: Codable, Identifiable, Equatable {
+    static func == (lhs: Khach, rhs: Khach) -> Bool {
+        if lhs.name == rhs.name {
+            return true
+        }
+        return false
+    }
+    
     var id: UUID
     var name: String
     var sdt: String
@@ -35,12 +42,10 @@ struct Khach: Codable, Identifiable {
         }
         return tongChi
     }
-}
+    
 
-let khachmau = [Khach(name: "hibi", sdt: "7642",dvDone:[Service(dichVu: "Full", gia: 50)]),
-                Khach(name: "Jubi", sdt: "8775", dvDone:[Service(dichVu: "talk", gia: 60)]),
-                Khach(name: "Linh", sdt: "8775", dvDone:[Service(dichVu: "read", gia: 70)]),
-                Khach(name: "Quang", sdt: "9070", dvDone:[Service(dichVu: "gaming", gia: 40)])]
+    
+}
 
 extension Khach {
     struct ThemKhach {
@@ -80,7 +85,22 @@ extension Khach {
         desc = data.desc
         dvDone = data.dvDone
         services = data.services
+        diem = data.diem
+        ngay = Date()
+    }
+    mutating func updateDiem(tu data: ThemKhach){
+        name = data.name
+        sdt = data.sdt
+        desc = data.desc
+        dvDone = data.dvDone
+        services = data.services
         diem = data.diem + 1
         ngay = Date()
     }
 }
+
+
+let khachmau = [Khach(name: "hibi", sdt: "7642",dvDone:[Service(dichVu: "Full", gia: 50)]),
+                Khach(name: "Jubi", sdt: "8775", dvDone:[Service(dichVu: "talk", gia: 60)]),
+                Khach(name: "Linh", sdt: "8775", dvDone:[Service(dichVu: "read", gia: 70)]),
+                Khach(name: "Quang", sdt: "9070", dvDone:[Service(dichVu: "gaming", gia: 40)])]

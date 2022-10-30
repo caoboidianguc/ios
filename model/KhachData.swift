@@ -4,63 +4,64 @@
 //
 //  Created by Thong Vu on 7/18/22.
 //
-
 import Foundation
 
 
 class KhachData: ObservableObject {
-    private static var documentFolder: URL {
-        do {
-            return try FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
-        } catch {
-            fatalError("khong thay duong dan thu muc.")
-        }
+    @Published var khach: Technician = Technician(name: "Quang")
+    
+    private static func fileURL() throws -> URL {
+        try FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
+            .appendingPathComponent("client.data")
     }
     
-    private static var fileURL: URL {
-        return documentFolder.appendingPathComponent("khach.data")
-    }
-    
-    //@Published var khachData: [Khach] = []
-    @Published var worker: Technician = Technician(name: "Quang")
     
     
-    
-    
-    
-    
-    func load(){
+    static func load(completion: @escaping (Result<Technician, Error>) -> Void){
         DispatchQueue.global(qos: .background).async {
-            [weak self] in
-            guard let data = try? Data(contentsOf: Self.fileURL) else {
-                #if DEBUG
-                DispatchQueue.main.async {
-                    self?.worker = quang
-                }
-                #endif
-                return
-            }
-            guard let nguoiMoi = try? JSONDecoder().decode(Technician.self, from: data) else {
-                fatalError("khong the decode")
-            }
-            DispatchQueue.main.async {
-                self?.worker = nguoiMoi
-            }
-        }
-    }
-    
-    func save() {
-        DispatchQueue.global(qos: .background).async {
-            [weak self] in
-            guard let ngaycong = self?.worker else {fatalError("khong the luu")}
-            guard let data = try? JSONEncoder().encode(ngaycong) else {fatalError("khong the encode")}
-            
             do {
-                let outfile = Self.fileURL
-                try data.write(to: outfile)
+                let fileURL = try fileURL()
+                guard let file = try? FileHandle(forReadingFrom: fileURL) else {
+                    DispatchQueue.main.async {
+                        completion(.success(quang))
+                    }
+                    return
+                }
+                let khach = try JSONDecoder().decode(Technician.self, from: file.availableData)
+                DispatchQueue.main.async {
+                    completion(.success(khach))
+                }
             } catch {
-                fatalError("khong the ghi vao tap tin")
+                DispatchQueue.main.async {
+                    completion(.failure(error))
+                }
             }
         }
     }
+    
+    static func save(khach: Technician, completion: @escaping (Result<Int, Error>) -> Void) {
+        DispatchQueue.global(qos: .background).async {
+            do {
+                let data = try JSONEncoder().encode(khach)
+                let outfile = try fileURL()
+                try data.write(to: outfile)
+                DispatchQueue.main.async {
+                    completion(.success(1))
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    completion(.failure(error))
+                }
+            }
+        }
+    }
+    
+    func delete(_ client: Khach){
+        khach.khach.removeAll { $0.id == client.id }
+    }
+    
+    func daDen(_ client: Khach) -> Bool {
+        khach.khach.contains(client)
+    }
+    
 }

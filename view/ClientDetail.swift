@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ClientDetail: View {
-    @Binding var worker: Technician
+    @StateObject var worker = KhachData()
     @Binding var khach: Khach
     @State private var updateKhach: Khach.ThemKhach = Khach.ThemKhach()
     @State private var suadoi = false
@@ -45,11 +45,17 @@ struct ClientDetail: View {
             })
             .fullScreenCover(isPresented: $suadoi) {
                 NavigationView {
-                    ClientEdit(worker: $worker, client: $updateKhach)
+                    ClientEdit(client: $updateKhach)
+                        .environmentObject(self.worker)
                         .navigationBarItems(leading: Button("Huy"){
                             suadoi = false
                         }, trailing: Button("Update"){
-                            khach.update(tu: updateKhach)
+                            if khach.dvDone.isEmpty {
+                                khach.update(tu: updateKhach)
+                            } else {
+                                khach.updateDiem(tu: updateKhach)
+                            }
+                            
                             suadoi = false
                         })
                 }
@@ -61,7 +67,8 @@ struct ClientDetail: View {
 struct ClientDetail_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            ClientDetail(worker: .constant(quang),khach: .constant(khachmau[0]))
+            ClientDetail(khach: .constant(khachmau[0]))
+                .environmentObject(KhachData())
         }
     }
 }

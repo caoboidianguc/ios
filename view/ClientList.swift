@@ -8,53 +8,62 @@
 import SwiftUI
 
 struct ClientList: View {
-    @Binding var worker: Technician
-    //@Binding var khachs: [Khach]
+    @EnvironmentObject var worker: KhachData
     @State var newCus = Khach.ThemKhach()
     @State private var trangMoi = false
-    @Environment(\.scenePhase) private var scene
-    let luuThayDoi: () -> Void
+    @State private var warning = ""
+    @State private var existed = false
     
     var body: some View {
         List {
-            ForEach($worker.khach) { $khach in
-                NavigationLink(destination: ClientDetail(worker: $worker, khach: $khach)){
+            ForEach($worker.khach.khach) { $khach in
+                NavigationLink(destination: ClientDetail(khach: $khach) ){
                     KhachRow(khach: khach)
                 }
-            }.onDelete{ khach in
-                withAnimation{
-                    worker.khach.remove(atOffsets: khach)
+                .swipeActions {
+                    Button(role: .destructive, action: {
+                        worker.delete(khach)
+                    }, label: {
+                        Label("Xoa", systemImage: "trash")
+                    })
                 }
             }
         }//list
-        .navigationTitle("My Clients")
-        .navigationViewStyle(.automatic)
         .navigationBarItems(trailing: Button(action: {trangMoi = true },
                                              label: {Image(systemName: "plus")}))
         .sheet(isPresented: $trangMoi) {
             NavigationView {
-                ClientEdit(worker: $worker, client: $newCus)
+                ClientEdit(client: $newCus)
+                    .alert("Failed to add", isPresented: $existed, actions: {}, message: {Text(warning)})
                     .navigationBarItems(leading: Button("Cancel"){
                         trangMoi = false
                     }, trailing: Button("Add"){
                         let newClient = Khach(name: newCus.name, sdt: newCus.sdt, desc: newCus.desc ,dvDone: newCus.dvDone)
-                        worker.khach.insert(newClient, at: 0)
-                        trangMoi = false
+                        if worker.daDen(newClient){
+                            existed = true
+                            warning = "Your client was in the list"
+                            //trangMoi = false
+                        } else {
+                            worker.khach.khach.append(newClient)
+                            trangMoi = false}
                     })
+                    .onAppear{
+                        newCus.name.removeAll()
+                        newCus.sdt.removeAll()
+                        newCus.desc.removeAll()
+                    }
             }
         }
-        .onChange(of: scene){ phase in
-            if phase == .inactive {
-                luuThayDoi()
-            }
-        }
+        
     }//body
 }
 
 struct ClientList_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            ClientList(worker: .constant(quang), luuThayDoi: {})
+            ClientList()
+                .environmentObject(KhachData())
         }
     }
 }
+//.alert("Your client in the List", isPresented: $existed, actions: {}, message: {Text(warning)})

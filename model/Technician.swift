@@ -12,13 +12,13 @@ struct Technician: Codable {
     let name: String
     var services: [Service]
     var khach: [Khach]
-    init(name: String, services:[Service] = dvTech , khach:[Khach] = []){
+    init(name: String, services:[Service] = dvTech, khach: [Khach] = khachmau){
         self.name = name
         self.services = services
         self.khach = khach
     }
 }
-let quang = Technician(name: "Quang", khach: khachmau)
+let quang = Technician(name: "Quang")
 
 extension Technician {
     static var dvTech: [Service] = [Service(dichVu: "Full set", gia: 60),
